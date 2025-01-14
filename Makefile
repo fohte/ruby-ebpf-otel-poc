@@ -1,6 +1,7 @@
 PUBLIC_IP = $(shell op plugin run -- aws ec2 describe-instances --filters "Name=tag:Name,Values=ebpf-sandbox" | jq -r '.Reservations[].Instances[].PublicIpAddress')
 SSH_USERNAME := ec2-user
 SSH = ssh $(SSH_USERNAME)@$(PUBLIC_IP)
+RUBY = $(shell which ruby)
 
 # === remote ===
 .PHONY: ssh
@@ -20,5 +21,5 @@ run-http:
 
 .PHONY: run-bpf
 run-bpf:
-	sudo -E bundle exec ruby src/poc.rb
+	sudo -E bundle exec $(RUBY) src/poc.rb
 # === local ===

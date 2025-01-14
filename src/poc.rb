@@ -8,6 +8,7 @@ include RbBCC # rubocop:disable Style/MixinUsage
 b = BCC.new(src_file: "#{__dir__}/poc.bpf.c")
 
 b.attach_uprobe(
+  name: 'ruby',
   sym: 'rb_io_puts',
   fn_name: 'trace_puts',
 )
