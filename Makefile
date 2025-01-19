@@ -10,6 +10,7 @@ ssh:
 .PHONY: deploy
 deploy:
 	rg --files | rsync -av --files-from=- . $(SSH_USERNAME)@$(PUBLIC_IP):~/poc/
+	$(SSH) 'sudo ln -sf $$HOME/poc/etc/otelcol/config.yaml /etc/otelcol/config.yaml'
 # === remote ===
 
 # === local ===
