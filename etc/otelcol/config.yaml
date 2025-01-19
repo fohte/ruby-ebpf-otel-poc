@@ -12,9 +12,9 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: 0.0.0.0:4317
+        endpoint: 0.0.0.0:14317
       http:
-        endpoint: 0.0.0.0:4318
+        endpoint: 0.0.0.0:14318
 
   opencensus:
     endpoint: 0.0.0.0:55678
@@ -48,22 +48,24 @@ processors:
 exporters:
   debug:
     verbosity: detailed
+  otlp:
+    endpoint: localhost:4317
 
 service:
   pipelines:
     traces:
       receivers: [otlp, opencensus, jaeger, zipkin]
       processors: [batch]
-      exporters: [debug]
+      exporters: [debug, otlp]
 
     metrics:
       receivers: [otlp, opencensus, prometheus]
       processors: [batch]
-      exporters: [debug]
+      exporters: [debug, otlp]
 
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug]
+      exporters: [debug, otlp]
 
   extensions: [health_check, pprof, zpages]

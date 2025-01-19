@@ -2,6 +2,32 @@ from bcc import BPF, USDT
 from time import sleep
 import os
 
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import (
+    PeriodicExportingMetricReader,
+)
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+from opentelemetry.metrics import get_meter_provider, set_meter_provider
+
+otlp_exporter = OTLPMetricExporter(
+    endpoint="http://localhost:14317",
+)
+
+metric_reader = PeriodicExportingMetricReader(
+    exporter=otlp_exporter,
+    export_interval_millis=5000,
+)
+
+meter_provider = MeterProvider(metric_readers=[metric_reader])
+set_meter_provider(meter_provider)
+
+meter = get_meter_provider().get_meter("gc-meter")
+
+counter = meter.create_counter(
+    name="gc-counter",
+    description="GC count",
+    unit="1",
+)
 pid = int(os.popen("pidof ruby").read().strip())
 
 usdt = USDT(pid=pid)
@@ -30,6 +56,9 @@ try:
         for k, v in metric_map.items():
             metric_key = metric_keys[k.value]
             print(f"{metric_key}: {v.value}\n")
+            if metric_key == "GC":
+                counter.add(v.value)
+                b["metric_map"][k] = 0
         sleep(1)
 except KeyboardInterrupt:
     print("Exiting...")

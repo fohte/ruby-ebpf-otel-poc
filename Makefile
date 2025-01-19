@@ -10,7 +10,8 @@ ssh:
 .PHONY: deploy
 deploy:
 	rg --files | rsync -av --files-from=- . $(SSH_USERNAME)@$(PUBLIC_IP):~/poc/
-	$(SSH) 'sudo ln -sf $$HOME/poc/etc/otelcol/config.yaml /etc/otelcol/config.yaml'
+	$(SSH) 'sudo -E python -m pip install -U -r poc/requirements.txt'
+	$(SSH) 'sudo cp $$HOME/poc/etc/otelcol/config.yaml /etc/otelcol/config.yaml && sudo chown otel:otel /etc/otelcol/config.yaml'
 # === remote ===
 
 # === local ===
